@@ -49,7 +49,8 @@ public class LoginController {
             Stage stage = (Stage) rootPane.getScene().getWindow();
             stage.setOnCloseRequest(event -> {
                 try{
-                    connection.sendLogoutRequest();
+                    //TODO
+                    connection.sendDisconnectRequest();
                     if (connection != null) {
                         connection.close();
                     }

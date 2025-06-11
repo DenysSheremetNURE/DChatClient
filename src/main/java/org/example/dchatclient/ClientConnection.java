@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import org.example.dchatclient.JSON.DisconnectRequest;
 import org.example.dchatclient.JSON.LoginRequest;
 import org.example.dchatclient.JSON.LogoutRequest;
 import org.example.dchatclient.JSON.ServerLoginResponse;
@@ -75,6 +76,20 @@ public class ClientConnection {
         logout.user = socket.toString();
 
         String json = mapper.writeValueAsString(logout);
+
+        sendRequest(json);
+    }
+
+    public void sendDisconnectRequest() throws JsonProcessingException{
+        ObjectMapper mapper = new ObjectMapper();
+        DisconnectRequest disconnect = new DisconnectRequest();
+
+        disconnect.command = "DISCONNECT";
+        disconnect.client = socket.getInetAddress().toString();
+
+        String json = mapper.writeValueAsString(disconnect);
+
+        sendRequest(json);
     }
 
     public void close() {
