@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import org.example.dchatclient.JSON.DisconnectRequest;
-import org.example.dchatclient.JSON.LoginRequest;
-import org.example.dchatclient.JSON.LogoutRequest;
-import org.example.dchatclient.JSON.ServerLoginResponse;
+import org.example.dchatclient.JSON.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -39,7 +36,7 @@ public class ClientConnection {
         }
     }
 
-    public String sendLoginRequest(String username, String password){
+    public ServerLoginResponse sendLoginRequest(String username, String password){
         try{
             ObjectMapper mapper = new ObjectMapper();
 
@@ -50,17 +47,30 @@ public class ClientConnection {
 
             String json = mapper.writeValueAsString(request);
 
-            out.write(json);
-            out.newLine();
-            out.flush();
-
-            String responseJson = in.readLine();
-            ServerLoginResponse response = mapper.readValue(responseJson, ServerLoginResponse.class);
-
-            return response.status + ":" + response.message;
+            String responseJson = sendRequest(json);
+            return mapper.readValue(responseJson, ServerLoginResponse.class);
 
         }  catch (IOException e) {
-            return "Error: cannot connect";
+            return new ServerLoginResponse("ERROR", "Unexpected error occurred.");
+        }
+    }
+
+    public ServerRegisterResponse sendRegisterRequest(String username, String password){
+        try{
+            ObjectMapper mapper = new ObjectMapper();
+
+            RegisterRequest request = new RegisterRequest();
+            request.command = "REGISTER";
+            request.username = username;
+            request.password = password;
+
+            String json = mapper.writeValueAsString(request);
+
+            String responseJson = sendRequest(json);
+            return mapper.readValue(responseJson, ServerRegisterResponse.class);
+
+        } catch (IOException e){
+            return new ServerRegisterResponse("ERROR", "Unexpected error occurred.");
         }
     }
 

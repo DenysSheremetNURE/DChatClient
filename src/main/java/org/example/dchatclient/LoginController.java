@@ -14,6 +14,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.dchatclient.JSON.ServerLoginResponse;
+import org.example.dchatclient.JSON.ServerRegisterResponse;
 
 import java.io.IOException;
 
@@ -48,16 +49,16 @@ public class LoginController {
         Platform.runLater(() -> {
             Stage stage = (Stage) rootPane.getScene().getWindow();
             stage.setOnCloseRequest(event -> {
-                try{
-                    //TODO
-                    connection.sendDisconnectRequest();
-                    if (connection != null) {
-                        connection.close();
+                if(connection != null){
+                    try{
+                        connection.sendDisconnectRequest();
+                        if (connection != null) {
+                            connection.close();
+                        }
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
                     }
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
                 }
-
             });
         });
     }
@@ -76,6 +77,9 @@ public class LoginController {
 
     @FXML
     private Button loginButton;
+
+    @FXML
+    private Button registerButton;
 
     @FXML
     private void onLoginClick() {
@@ -99,39 +103,48 @@ public class LoginController {
             return;
         }
 
-        ObjectMapper mapper = new ObjectMapper();
-
         new Thread(()->{
             try{
-                String response = connection.sendLoginRequest(username, password);
-                ServerLoginResponse login = mapper.readValue(response, ServerLoginResponse.class);
+                ServerLoginResponse response = connection.sendLoginRequest(username, password);
 
-                if (login.status.equals("OK")){
-                    Platform.runLater(()->{
+                Platform.runLater(() -> {
+                    if (response.status.equals("OK")){
                         try{
-                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/client.fxml"));
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/dchatclient/client.fxml"));
                             Parent root = loader.load();
                             Scene scene = new Scene(root);
+
+                            Stage stage = (Stage) loginButton.getScene().getWindow();
+                            stage.setWidth(1020);
+                            stage.setHeight(800);
+
+                            stage.setMinWidth(1020);
+                            stage.setMinHeight(800);
+                            stage.setTitle("DChat " + username);
 
                             ClientAppController clientAppController = loader.getController();
                             clientAppController.setClientUsername(username);
                             clientAppController.setConnection(connection);
 
-
-                            statusLabel.setText(login.message);
+                            statusLabel.setText(response.message);
                             SceneManager.changeToScene(scene, usernameField);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-                } else {
-                    Platform.runLater(() -> statusLabel.setText(login.message));
-                }
 
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } finally {
-                Platform.runLater(() -> loginButton.setDisable(false));
+                            clientAppController.setLogoutHandler();
+
+                        } catch (IOException e) {
+                            statusLabel.setText("Unexpected error occurred.");
+                            e.printStackTrace();
+                        }
+                    } else {
+                        statusLabel.setText(response.message);
+                    }
+                    loginButton.setDisable(false);
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    statusLabel.setText("Server connection error.");
+                    loginButton.setDisable(false);
+                });
             }
 
         }).start();
@@ -139,7 +152,71 @@ public class LoginController {
 
     @FXML
     private void onRegisterClick() {
-        // регистрация
+        registerButton.setDisable(true);
+
+        String username = usernameField.getText().trim();
+        String password = passwordField.getText().trim();
+
+        String valUsername = usernameValidation(username);
+        String valPassword = passwordValidation(password);
+
+        if(!valUsername.isEmpty()){
+            statusLabel.setText(valUsername);
+            Platform.runLater(() -> registerButton.setDisable(false));
+            return;
+        }
+
+        if (!valPassword.isEmpty()){
+            statusLabel.setText(valPassword);
+            Platform.runLater(() -> registerButton.setDisable(false));
+            return;
+        }
+
+        new Thread(() -> {
+            try{
+                ServerRegisterResponse response = connection.sendRegisterRequest(username, password);
+
+                Platform.runLater(() -> {
+                    if (response.status.equals("OK")){
+                        try{
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/dchatclient/client.fxml"));
+                            Parent root = loader.load();
+                            Scene scene = new Scene(root);
+
+                            Stage stage = (Stage) registerButton.getScene().getWindow();
+                            stage.setWidth(1020);
+                            stage.setHeight(800);
+
+                            stage.setMinWidth(1020);
+                            stage.setMinHeight(800);
+                            stage.setTitle("DChat " + username);
+
+                            ClientAppController clientAppController = loader.getController();
+                            clientAppController.setClientUsername(username);
+                            clientAppController.setConnection(connection);
+
+                            statusLabel.setText(response.message);
+                            SceneManager.changeToScene(scene, usernameField);
+
+                            clientAppController.setLogoutHandler();
+                        } catch (IOException e) {
+                            statusLabel.setText("Unexpected error occurred.");
+                            e.printStackTrace();
+                        }
+                    } else {
+                        statusLabel.setText(response.message);
+                    }
+                    registerButton.setDisable(false);
+                });
+            } catch (Exception e){
+                Platform.runLater(() -> {
+                    statusLabel.setText("Server connection error.");
+                    registerButton.setDisable(false);
+                });
+            }
+
+
+        }).start();
     }
 
 
