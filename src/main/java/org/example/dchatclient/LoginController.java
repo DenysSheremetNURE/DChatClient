@@ -61,6 +61,7 @@ public class LoginController {
                 }
             });
         });
+
     }
 
     @FXML
@@ -129,8 +130,9 @@ public class LoginController {
                             statusLabel.setText(response.message);
                             SceneManager.changeToScene(scene, usernameField);
 
-                            clientAppController.setLogoutHandler();
-
+                            Platform.runLater(() -> {
+                                clientAppController.setLogoutHandler();
+                            });
                         } catch (IOException e) {
                             statusLabel.setText("Unexpected error occurred.");
                             e.printStackTrace();
@@ -198,7 +200,9 @@ public class LoginController {
                             statusLabel.setText(response.message);
                             SceneManager.changeToScene(scene, usernameField);
 
-                            clientAppController.setLogoutHandler();
+                            Platform.runLater(() -> {
+                                clientAppController.setLogoutHandler();
+                            });
                         } catch (IOException e) {
                             statusLabel.setText("Unexpected error occurred.");
                             e.printStackTrace();
