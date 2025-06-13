@@ -1,11 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-
-<AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.dchatclient.ClientAppController">
+<AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="800.0" minWidth="1020.0" prefHeight="800.0" prefWidth="1020.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.dchatclient.ClientAppController">
    <children>
-      <BorderPane fx:id="mainPane" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
-                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+      <BorderPane fx:id="mainPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <center>
+            <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <center>
+                  <ListView fx:id="messageListView" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: linear-gradient(to bottom right, #0097a7, #3949ab);" BorderPane.alignment="CENTER" />
+               </center>
+               <bottom>
+                  <HBox fx:id="typingAreaBox" alignment="CENTER_LEFT" prefHeight="77.0" prefWidth="820.0" style="-fx-background-color: linear-gradient(to bottom right, #0097a7, #3949ab);;" BorderPane.alignment="CENTER">
+                     <children>
+                        <TextField fx:id="messageInput" minHeight="30.0" minWidth="310.0" prefHeight="55.0" prefWidth="661.0" promptText="Type your message" HBox.hgrow="NEVER">
+                           <font>
+                              <Font name="Yu Gothic Regular" size="15.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <Button fx:id="attachmentButton" minHeight="55.0" minWidth="55.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="55.0" style="-fx-background-color: linear-gradient(to bottom right, #1f3c88, #000000);" text="📎" textFill="WHITE">
+                           <HBox.margin>
+                              <Insets left="5.0" right="5.0" />
+                           </HBox.margin>
+                           <font>
+                              <Font size="19.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="sendButton" alignment="CENTER" minHeight="55.0" minWidth="55.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="55.0" style="-fx-background-color: linear-gradient(to bottom right, #1f3c88, #000000);" text="💬" textAlignment="CENTER" textFill="WHITE">
+                           <font>
+                              <Font name="Serif Regular" size="21.0" />
+                           </font>
+                        </Button>
+                     </children></HBox>
+               </bottom>
+            </BorderPane>
+         </center>
+         <left>
+            <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <center>
+                  <ListView fx:id="chatListView" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: linear-gradient(to bottom right, #88b4bd, #9c9ebf);" BorderPane.alignment="CENTER" />
+               </center>
+               <top>
+                  <HBox fx:id="profileBox" alignment="CENTER" prefHeight="55.0" prefWidth="200.0" style="-fx-background-color: linear-gradient(to bottom right, #9c9ebf, #0097a7);" BorderPane.alignment="CENTER">
+                     <children>
+                        <Label fx:id="usernameProfileLabel" text="username" textFill="WHITE">
+                           <font>
+                              <Font name="SansSerif Regular" size="18.0" />
+                           </font>
+                        </Label>
+                        <Button fx:id="newChatButton" mnemonicParsing="false" style="-fx-background-color: linear-gradient(to bottom right, #1f3c88, #000000);" text="new chat" textFill="WHITE">
+                           <font>
+                              <Font name="SansSerif Regular" size="14.0" />
+                           </font>
+                        </Button>
+                     </children></HBox>
+               </top>
+            </BorderPane>
+         </left></BorderPane>
    </children>
 </AnchorPane>

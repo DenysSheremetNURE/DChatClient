@@ -6,9 +6,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import org.example.dchatclient.JSON.*;
+import org.example.dchatclient.UIClasses.Message;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.List;
 
 public class ClientConnection {
     private Socket socket;
@@ -108,5 +110,20 @@ public class ClientConnection {
             out.close();
             if (socket != null) socket.close();
         } catch (IOException ignored) {}
+    }
+
+    public List<Message> sendGetMessagesRequest(String userName){
+        try{
+            ObjectMapper mapper = new ObjectMapper();
+            GetMessageRequest request = new GetMessageRequest("GET_MESSAGES", userName);
+
+            String json = mapper.writeValueAsString(request);
+            String responseJson = sendRequest(json);
+
+            return mapper.readValue(responseJson, mapper.getTypeFactory().constructCollectionType(List.class, Message.class));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return List.of();
+        }
     }
 }

@@ -14,6 +14,8 @@ module org.example.dchatclient {
 
     opens org.example.dchatclient to javafx.fxml;
     opens org.example.dchatclient.JSON to com.fasterxml.jackson.databind;
+    opens org.example.dchatclient.UIClasses to com.fasterxml.jackson.databind;
 
+    exports org.example.dchatclient.UIClasses to com.fasterxml.jackson.databind;
     exports org.example.dchatclient;
 }
