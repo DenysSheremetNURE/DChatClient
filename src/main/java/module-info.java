@@ -11,6 +11,7 @@ module org.example.dchatclient {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.datatype.jsr310;
 
     opens org.example.dchatclient to javafx.fxml;
     opens org.example.dchatclient.JSON to com.fasterxml.jackson.databind;

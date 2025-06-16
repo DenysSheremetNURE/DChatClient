@@ -35,7 +35,7 @@
                               <Font size="19.0" />
                            </font>
                         </Button>
-                        <Button fx:id="sendButton" alignment="CENTER" minHeight="55.0" minWidth="55.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="55.0" style="-fx-background-color: linear-gradient(to bottom right, #1f3c88, #000000);" text="💬" textAlignment="CENTER" textFill="WHITE">
+                        <Button fx:id="sendButton" alignment="CENTER" minHeight="55.0" minWidth="55.0" mnemonicParsing="false" onAction="#sendCurrentMessage" prefHeight="55.0" prefWidth="55.0" style="-fx-background-color: linear-gradient(to bottom right, #1f3c88, #000000);" text="💬" textAlignment="CENTER" textFill="WHITE">
                            <font>
                               <Font name="Serif Regular" size="21.0" />
                            </font>
@@ -52,7 +52,7 @@
                <top>
                   <HBox fx:id="profileBox" alignment="CENTER" prefHeight="55.0" prefWidth="200.0" style="-fx-background-color: linear-gradient(to bottom right, #9c9ebf, #0097a7);" BorderPane.alignment="CENTER">
                      <children>
-                        <Button fx:id="newChatButton" mnemonicParsing="false" prefHeight="41.0" prefWidth="163.0" style="-fx-background-color: linear-gradient(to bottom right, #1f3c88, #000000);" text="new chat" textFill="WHITE">
+                        <Button fx:id="newChatButton" mnemonicParsing="false" onAction="#onNewChatClick" prefHeight="41.0" prefWidth="163.0" style="-fx-background-color: linear-gradient(to bottom right, #1f3c88, #000000);" text="new chat" textFill="WHITE">
                            <font>
                               <Font name="SansSerif Regular" size="14.0" />
                            </font>

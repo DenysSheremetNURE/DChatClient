@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import org.example.dchatclient.JSON.BaseResponse;
 import org.example.dchatclient.JSON.IncomingMessage;
 import org.example.dchatclient.JSON.NewChatRequest;
+import org.example.dchatclient.JSON.NewChatResponse;
 import org.example.dchatclient.UIClasses.Chat;
 import org.example.dchatclient.UIClasses.Message;
 
@@ -44,6 +45,7 @@ public class ClientAppController {
     @FXML
     private Button newChatButton;
 
+    @FXML
     private void onNewChatClick(){
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("New Chat");
@@ -79,6 +81,7 @@ public class ClientAppController {
     @FXML
     private Button sendButton;
 
+    @FXML
     private void sendCurrentMessage(){
         String content = messageInput.getText().trim();
         if(content.isEmpty() || currentChatUsername == null) return;
@@ -109,8 +112,11 @@ public class ClientAppController {
     @FXML
     public void initialize(){
         //initialization of eventlisteners
-        sendButton.setOnAction(event -> sendCurrentMessage());
         messageInput.setOnAction(event -> sendCurrentMessage());
+
+        chatListView.setItems(chatItems);
+        messageListView.setItems(filteredMessages);
+
         chatListView.setOnMouseClicked(event -> {
             Chat selectedChat = chatListView.getSelectionModel().getSelectedItem();
             if (selectedChat != null) {
@@ -134,8 +140,7 @@ public class ClientAppController {
         });
         //initialization of eventlisteners
 
-        chatListView.setItems(chatItems);
-        messageListView.setItems(filteredMessages);
+
 
 
     }
@@ -166,10 +171,13 @@ public class ClientAppController {
                     }
 
                     case "NEW_CHAT_OK" -> {
-                        //TODO
+                        NewChatResponse response = mapper.readValue(msg, NewChatResponse.class);
+                        addNewChat(response.chatId, response.recipientId, response.recipient);
                     }
                     case "NEW_CHAT_ERR" -> {
-                        //TODO
+                        Platform.runLater(() ->
+                                showAlert("Chat Error", "Chat creation failed: user not found or already in chat.")
+                        );
                     }
 
                     default -> System.out.println("Unknown type: " + base.getType());
@@ -228,6 +236,17 @@ public class ClientAppController {
             alert.setContentText(message);
             alert.showAndWait();
         });
+    }
+
+    private void addNewChat(long chatId, long userId, String username){
+        Platform.runLater(() -> {
+            Chat chat = new Chat(chatId, userId, username);
+            chatItems.add(chat);
+            chatListView.getSelectionModel().select(chat);
+            currentChatUsername = username;
+            filteredMessages.clear();
+        });
+
     }
 
 

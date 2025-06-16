@@ -8,6 +8,10 @@ public class BaseResponse {
 
     public BaseResponse(){}
 
+    public BaseResponse(String type){
+        this.type = type;
+    }
+
     public String getType(){
         return type;
     }

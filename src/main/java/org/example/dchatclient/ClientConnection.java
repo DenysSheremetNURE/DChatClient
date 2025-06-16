@@ -2,6 +2,8 @@ package org.example.dchatclient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -17,8 +19,13 @@ public class ClientConnection {
     private Socket socket;
     private BufferedReader in;
     private BufferedWriter out;
+    private final ObjectMapper mapper;
 
     public ClientConnection(String host, int port){
+        mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
         try{
             socket = new Socket(host, port);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -51,10 +58,9 @@ public class ClientConnection {
 
     public void sendMessage(String recipient, Message message){
         try{
-            ObjectMapper mapper = new ObjectMapper();
             SendMessageRequest request = new SendMessageRequest(recipient, message);
             String json = mapper.writeValueAsString(request);
-            sendRequest(json);
+            send(json);
         } catch (JsonProcessingException e){
             e.printStackTrace();
         }
@@ -62,7 +68,6 @@ public class ClientConnection {
 
     public ServerLoginResponse sendLoginRequest(String username, String password){
         try{
-            ObjectMapper mapper = new ObjectMapper();
 
             LoginRequest request = new LoginRequest();
             request.command = "LOGIN";
@@ -81,7 +86,6 @@ public class ClientConnection {
 
     public ServerRegisterResponse sendRegisterRequest(String username, String password){
         try{
-            ObjectMapper mapper = new ObjectMapper();
 
             RegisterRequest request = new RegisterRequest();
             request.command = "REGISTER";
@@ -103,7 +107,6 @@ public class ClientConnection {
     }
 
     public void sendLogoutRequest() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
         LogoutRequest logout = new LogoutRequest();
 
         logout.command = "LOGOUT";
@@ -115,7 +118,6 @@ public class ClientConnection {
     }
 
     public void sendDisconnectRequest() throws JsonProcessingException{
-        ObjectMapper mapper = new ObjectMapper();
         DisconnectRequest disconnect = new DisconnectRequest();
 
         disconnect.command = "DISCONNECT";
@@ -136,7 +138,6 @@ public class ClientConnection {
 
     public List<Message> sendGetMessagesRequest(String userName){
         try{
-            ObjectMapper mapper = new ObjectMapper();
             GetMessageRequest request = new GetMessageRequest("GET_MESSAGES", userName);
 
             String json = mapper.writeValueAsString(request);
@@ -154,6 +155,9 @@ public class ClientConnection {
             try{
                 String line;
                 while((line = in.readLine()) != null){
+                    //TODO delete
+                    System.out.println("Raw from server: " + line);
+                    //
                     messageHandler.accept(line);
                 }
             } catch (IOException e){
