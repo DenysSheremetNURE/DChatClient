@@ -10,10 +10,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import org.example.dchatclient.JSON.BaseResponse;
-import org.example.dchatclient.JSON.IncomingMessage;
-import org.example.dchatclient.JSON.NewChatRequest;
-import org.example.dchatclient.JSON.NewChatResponse;
+import org.example.dchatclient.JSON.*;
 import org.example.dchatclient.UIClasses.Chat;
 import org.example.dchatclient.UIClasses.Message;
 
@@ -164,9 +161,8 @@ public class ClientAppController {
 
                 switch (base.getType()){
                     case "MESSAGE" -> {
-                        IncomingMessage incoming = mapper.readValue(msg, IncomingMessage.class);
-                        Message message = incoming.getData();
-                        message.setId(allMessages.isEmpty() ? 1 : allMessages.getLast().getId() + 1);
+                        SendMessageResponse incoming = mapper.readValue(msg, SendMessageResponse.class);
+                        Message message = incoming.message;
                         Platform.runLater(() -> addIncomingMessage(message));
                     }
 
@@ -197,9 +193,10 @@ public class ClientAppController {
     }
 
     private boolean isMessageForCurrentChat(Message message){
-        if(currentChatUsername == null) return false;
+        if (currentChatUsername == null || message == null || message.getSender() == null)
+            return false;
 
-        return message.getSender().equals(currentChatUsername);
+        return message.getSender().equals(currentChatUsername) || message.getSender().equals(clientUsername);
     }
 
     public void setClientUsername(String username){clientUsername = username;}
