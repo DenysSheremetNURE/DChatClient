@@ -11,6 +11,7 @@ import org.example.dchatclient.UIClasses.Message;
 import java.io.*;
 import java.net.Socket;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ClientConnection {
     private Socket socket;
@@ -35,6 +36,27 @@ public class ClientConnection {
             return in.readLine();
         } catch (IOException e) {
             return "Server: no response";
+        }
+    }
+
+    public void send(String message) {
+        try {
+            out.write(message);
+            out.newLine();
+            out.flush();
+        } catch (IOException e) {
+            System.err.println("Send failed: " + e.getMessage());
+        }
+    }
+
+    public void sendMessage(String recipient, Message message){
+        try{
+            ObjectMapper mapper = new ObjectMapper();
+            SendMessageRequest request = new SendMessageRequest(recipient, message);
+            String json = mapper.writeValueAsString(request);
+            sendRequest(json);
+        } catch (JsonProcessingException e){
+            e.printStackTrace();
         }
     }
 
@@ -125,5 +147,18 @@ public class ClientConnection {
             e.printStackTrace();
             return List.of();
         }
+    }
+
+    public void listenToServer(Consumer<String> messageHandler){
+        new Thread(() -> {
+            try{
+                String line;
+                while((line = in.readLine()) != null){
+                    messageHandler.accept(line);
+                }
+            } catch (IOException e){
+                System.err.println("Stream reading error: " + e.getMessage());
+            }
+        }).start();
     }
 }

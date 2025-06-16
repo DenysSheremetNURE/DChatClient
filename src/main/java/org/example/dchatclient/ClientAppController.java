@@ -1,17 +1,18 @@
 package org.example.dchatclient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.example.dchatclient.JSON.BaseResponse;
+import org.example.dchatclient.JSON.IncomingMessage;
+import org.example.dchatclient.JSON.NewChatRequest;
 import org.example.dchatclient.UIClasses.Chat;
 import org.example.dchatclient.UIClasses.Message;
 
@@ -21,6 +22,9 @@ public class ClientAppController {
     private static String clientUsername;
     private static long clientId;
 
+    private String currentChatUsername; //help variable to identify which chat is open
+    //TODO update it while clicking on listview cell
+
     private final ObservableList<Chat> chatItems = FXCollections.observableArrayList();
     private final ObservableList<Message> allMessages = FXCollections.observableArrayList();
     private final ObservableList<Message> filteredMessages = FXCollections.observableArrayList();
@@ -29,22 +33,73 @@ public class ClientAppController {
     public static long getClientId(){return clientId;}
 
     @FXML
+    private AnchorPane rootPane;
+
+    @FXML
     private ListView<Chat> chatListView;
 
     @FXML
     private ListView<Message> messageListView;
 
     @FXML
-    private Label usernameProfileLabel;
-
-    @FXML
     private Button newChatButton;
+
+    private void onNewChatClick(){
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("New Chat");
+        dialog.setHeaderText("Start a new chat");
+        dialog.setContentText("Enter recipient username:");
+
+        dialog.showAndWait().ifPresent(recipient -> {
+            recipient = recipient.trim();
+            if (recipient.isEmpty() || recipient.equals(clientUsername)) {
+                showAlert("Invalid username", "Please enter a valid username different from your own.");
+                return;
+            }
+
+            try {
+                NewChatRequest request = new NewChatRequest(clientUsername, recipient);
+                request.command = "NEW_CHAT";
+
+                ObjectMapper mapper = new ObjectMapper();
+                String json = mapper.writeValueAsString(request);
+
+                connection.send(json);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert("Error", "Failed to send new chat request.");
+            }
+        });
+    }
 
     @FXML
     private TextField messageInput;
 
     @FXML
     private Button sendButton;
+
+    private void sendCurrentMessage(){
+        String content = messageInput.getText().trim();
+        if(content.isEmpty() || currentChatUsername == null) return;
+
+        Message message = new Message(
+                0,
+                0,
+                clientUsername,
+                content,
+                java.time.ZonedDateTime.now()
+        );
+
+        connection.sendMessage(currentChatUsername, message);
+
+        allMessages.add(message);
+        if (isMessageForCurrentChat(message)) {
+            filteredMessages.add(message);
+        }
+
+        messageInput.clear();
+    }
 
     @FXML
     private Button attachmentButton;
@@ -53,9 +108,34 @@ public class ClientAppController {
 
     @FXML
     public void initialize(){
+        //initialization of eventlisteners
+        sendButton.setOnAction(event -> sendCurrentMessage());
+        messageInput.setOnAction(event -> sendCurrentMessage());
+        chatListView.setOnMouseClicked(event -> {
+            Chat selectedChat = chatListView.getSelectionModel().getSelectedItem();
+            if (selectedChat != null) {
+                currentChatUsername = selectedChat.getUserName();
+
+                filteredMessages.setAll(
+                        allMessages.filtered(this::isMessageForCurrentChat)
+                );
+            }
+        });
+        chatListView.setCellFactory(listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(Chat chat, boolean empty) {
+                super.updateItem(chat, empty);
+                if (empty || chat == null) {
+                    setText(null);
+                } else {
+                    setText(chat.getUserName());
+                }
+            }
+        });
+        //initialization of eventlisteners
+
         chatListView.setItems(chatItems);
         messageListView.setItems(filteredMessages);
-
 
 
     }
@@ -71,6 +151,47 @@ public class ClientAppController {
                 }
             });
         });
+
+        connection.listenToServer((msg) -> {
+            try{
+                ObjectMapper mapper = new ObjectMapper();
+                BaseResponse base = mapper.readValue(msg, BaseResponse.class);
+
+                switch (base.getType()){
+                    case "MESSAGE" -> {
+                        IncomingMessage incoming = mapper.readValue(msg, IncomingMessage.class);
+                        Message message = incoming.getData();
+                        message.setId(allMessages.isEmpty() ? 1 : allMessages.getLast().getId() + 1);
+                        Platform.runLater(() -> addIncomingMessage(message));
+                    }
+
+                    case "NEW_CHAT_OK" -> {
+                        //TODO
+                    }
+                    case "NEW_CHAT_ERR" -> {
+                        //TODO
+                    }
+
+                    default -> System.out.println("Unknown type: " + base.getType());
+                }
+            } catch (JsonProcessingException e){
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void addIncomingMessage(Message message){
+        allMessages.add(message);
+
+        if (isMessageForCurrentChat(message)){
+            filteredMessages.add(message);
+        }
+    }
+
+    private boolean isMessageForCurrentChat(Message message){
+        if(currentChatUsername == null) return false;
+
+        return message.getSender().equals(currentChatUsername);
     }
 
     public void setClientUsername(String username){clientUsername = username;}
@@ -99,8 +220,17 @@ public class ClientAppController {
         return clientUsername;
     }
 
-    @FXML
-    private AnchorPane rootPane;
+    private void showAlert(String title, String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+    }
+
+
 
 
 }

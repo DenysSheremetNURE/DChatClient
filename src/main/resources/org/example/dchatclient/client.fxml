@@ -11,12 +11,12 @@
          <center>
             <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <center>
-                  <ListView fx:id="messageListView" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: linear-gradient(to bottom right, #0097a7, #3949ab);" BorderPane.alignment="CENTER" />
+                  <ListView fx:id="messageListView" prefHeight="723.0" prefWidth="814.0" style="-fx-background-color: linear-gradient(to bottom right, #0097a7, #3949ab);" BorderPane.alignment="CENTER" />
                </center>
                <bottom>
                   <HBox fx:id="typingAreaBox" alignment="CENTER_LEFT" prefHeight="77.0" prefWidth="820.0" style="-fx-background-color: linear-gradient(to bottom right, #0097a7, #3949ab);;" BorderPane.alignment="CENTER">
                      <children>
-                        <TextField fx:id="messageInput" minHeight="30.0" minWidth="310.0" prefHeight="55.0" prefWidth="661.0" promptText="Type your message" HBox.hgrow="NEVER">
+                        <TextField fx:id="messageInput" minHeight="30.0" minWidth="310.0" prefHeight="55.0" prefWidth="573.0" promptText="Type your message" HBox.hgrow="NEVER">
                            <font>
                               <Font name="Yu Gothic Regular" size="15.0" />
                            </font>
@@ -45,19 +45,14 @@
             </BorderPane>
          </center>
          <left>
-            <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <BorderPane prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
                <center>
-                  <ListView fx:id="chatListView" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: linear-gradient(to bottom right, #88b4bd, #9c9ebf);" BorderPane.alignment="CENTER" />
+                  <ListView fx:id="chatListView" prefHeight="745.0" prefWidth="250.0" style="-fx-background-color: linear-gradient(to bottom right, #88b4bd, #9c9ebf);" BorderPane.alignment="CENTER" />
                </center>
                <top>
                   <HBox fx:id="profileBox" alignment="CENTER" prefHeight="55.0" prefWidth="200.0" style="-fx-background-color: linear-gradient(to bottom right, #9c9ebf, #0097a7);" BorderPane.alignment="CENTER">
                      <children>
-                        <Label fx:id="usernameProfileLabel" text="username" textFill="WHITE">
-                           <font>
-                              <Font name="SansSerif Regular" size="18.0" />
-                           </font>
-                        </Label>
-                        <Button fx:id="newChatButton" mnemonicParsing="false" style="-fx-background-color: linear-gradient(to bottom right, #1f3c88, #000000);" text="new chat" textFill="WHITE">
+                        <Button fx:id="newChatButton" mnemonicParsing="false" prefHeight="41.0" prefWidth="163.0" style="-fx-background-color: linear-gradient(to bottom right, #1f3c88, #000000);" text="new chat" textFill="WHITE">
                            <font>
                               <Font name="SansSerif Regular" size="14.0" />
                            </font>
