@@ -136,17 +136,14 @@ public class ClientConnection {
         } catch (IOException ignored) {}
     }
 
-    public List<Message> sendGetMessagesRequest(String userName){
+    public void sendGetMessagesRequest(String userName){
         try{
             GetMessageRequest request = new GetMessageRequest("GET_MESSAGES", userName);
-
             String json = mapper.writeValueAsString(request);
-            String responseJson = sendRequest(json);
+            send(json);
 
-            return mapper.readValue(responseJson, mapper.getTypeFactory().constructCollectionType(List.class, Message.class));
         } catch (IOException e) {
             e.printStackTrace();
-            return List.of();
         }
     }
 

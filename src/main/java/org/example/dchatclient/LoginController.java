@@ -125,8 +125,9 @@ public class LoginController {
 
                             ClientAppController clientAppController = loader.getController();
                             clientAppController.setClientUsername(username);
-                            clientAppController.initMessages();
                             clientAppController.setConnection(connection);
+
+
 
                             statusLabel.setText(response.message);
                             SceneManager.changeToScene(scene, usernameField);
@@ -196,8 +197,8 @@ public class LoginController {
 
                             ClientAppController clientAppController = loader.getController();
                             clientAppController.setClientUsername(username);
-                            clientAppController.initMessages();
                             clientAppController.setConnection(connection);
+
 
                             statusLabel.setText(response.message);
                             SceneManager.changeToScene(scene, usernameField);

@@ -1,9 +1,11 @@
 package org.example.dchatclient.UIClasses;
 
 public class Chat {
-    private final long id;
-    private final long userId;
-    private final String userName;
+    public long id;
+    public long userId;
+    public String userName;
+
+    public Chat(){}
 
     public Chat(long id, long userId, String userName){
         this.id = id;

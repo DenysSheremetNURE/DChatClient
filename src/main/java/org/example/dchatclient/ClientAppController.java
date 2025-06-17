@@ -111,7 +111,6 @@ public class ClientAppController {
         chatListView.setItems(chatItems);
         messageListView.setItems(filteredMessages);
 
-        initChats();
 
         chatListView.setOnMouseClicked(event -> {
             Chat selectedChat = chatListView.getSelectionModel().getSelectedItem();
@@ -214,6 +213,9 @@ public class ClientAppController {
             }
         });
 
+        initMessages();
+        initChats();
+
     }
 
     public void addIncomingMessage(Message message){
@@ -227,11 +229,11 @@ public class ClientAppController {
 
     }
 
-    private boolean isMessageForCurrentChat(Message message){
-        if (currentChatUsername == null || message == null || message.getSender() == null)
-            return false;
+    private boolean isMessageForCurrentChat(Message message) {
+        Chat selectedChat = chatListView.getSelectionModel().getSelectedItem();
+        if (selectedChat == null || message == null) return false;
 
-        return message.getSender().equals(currentChatUsername) || message.getSender().equals(clientUsername);
+        return message.getChatId() == selectedChat.id;
     }
 
     public void setClientUsername(String username){clientUsername = username;}
@@ -252,12 +254,8 @@ public class ClientAppController {
 
     public void initMessages(){
         if (connection != null && clientUsername != null) {
-            allMessages.setAll(connection.sendGetMessagesRequest(clientUsername));
+            connection.sendGetMessagesRequest(clientUsername);
         }
-
-        filteredMessages.setAll(
-                allMessages.filtered(this::isMessageForCurrentChat)
-        );
     }
 
     public String getClientUsername(){
