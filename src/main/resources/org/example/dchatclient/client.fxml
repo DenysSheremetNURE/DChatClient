@@ -54,7 +54,7 @@
                      <children>
                         <Button fx:id="newChatButton" mnemonicParsing="false" onAction="#onNewChatClick" prefHeight="41.0" prefWidth="163.0" style="-fx-background-color: linear-gradient(to bottom right, #1f3c88, #000000);" text="new chat" textFill="WHITE">
                            <font>
-                              <Font name="SansSerif Regular" size="14.0" />
+                              <Font name="SansSerif Regular" size="21.0" />
                            </font>
                         </Button>
                      </children></HBox>

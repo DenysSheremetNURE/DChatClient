@@ -118,6 +118,8 @@ public class ClientConnection {
     }
 
     public void sendDisconnectRequest() throws JsonProcessingException{
+        if (socket == null) return;
+
         DisconnectRequest disconnect = new DisconnectRequest();
 
         disconnect.command = "DISCONNECT";
@@ -130,8 +132,8 @@ public class ClientConnection {
 
     public void close() {
         try {
-            in.close();
-            out.close();
+            if (in != null) in.close();
+            if (out != null) out.close();
             if (socket != null) socket.close();
         } catch (IOException ignored) {}
     }

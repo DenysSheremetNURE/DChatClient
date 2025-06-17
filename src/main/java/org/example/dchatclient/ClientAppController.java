@@ -23,7 +23,6 @@ public class ClientAppController {
     private static long clientId;
 
     private String currentChatUsername; //help variable to identify which chat is open
-    //TODO update it while clicking on listview cell
 
     private final ObservableList<Chat> chatItems = FXCollections.observableArrayList();
     private final ObservableList<Message> allMessages = FXCollections.observableArrayList();
@@ -135,6 +134,66 @@ public class ClientAppController {
         });
         //initialization of eventlisteners
 
+        //styling cells in ListViews
+
+        chatListView.setCellFactory(listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(Chat chat, boolean empty) {
+                super.updateItem(chat, empty);
+                if (empty || chat == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    Label name = new Label(chat.getUserName());
+                    name.setStyle("-fx-font-weight: bold; -fx-font-size: 18px;");
+
+                    AnchorPane container = new AnchorPane(name);
+                    container.setStyle("-fx-padding: 2; -fx-background-radius: 3;");
+
+                    setGraphic(container);
+
+                    if (isSelected()) {
+                        name.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px;");
+                    }
+                }
+            }
+        });
+
+        //
+
+        messageListView.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Message message, boolean empty) {
+                super.updateItem(message, empty);
+                if (empty || message == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    Label bubble = new Label(message.getContent());
+                    bubble.setWrapText(true);
+                    bubble.setMaxWidth(300);
+                    bubble.setStyle(
+                                    "-fx-font-size: 16px;" +
+                                    "-fx-padding: 8;" +
+                                    "-fx-background-color: " +
+                                    (message.getSender().equals(clientUsername) ? "#cce5ff;" : "#e0e0e0;") +
+                                    "-fx-background-radius: " +
+                                    (message.getSender().equals(clientUsername) ? "10 10 0 10;" : "10 10 10 0;")
+                    );
+
+                    AnchorPane wrapper = new AnchorPane(bubble);
+                    if (message.getSender().equals(clientUsername)) {
+                        AnchorPane.setRightAnchor(bubble, 0.0);
+                    } else {
+                        AnchorPane.setLeftAnchor(bubble, 0.0);
+                    }
+
+                    setGraphic(wrapper);
+                }
+            }
+        });
+
+        //styling cells in ListViews
 
 
 

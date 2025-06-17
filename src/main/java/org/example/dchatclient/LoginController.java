@@ -31,6 +31,7 @@ public class LoginController {
                 connection = new ClientConnection(host, port);
                 if (!connection.isConnected()) {
                     Platform.runLater(() -> statusLabel.setText("Cannot connect to server"));
+                    return;
                 }
 
             } catch (Exception e){
@@ -106,7 +107,7 @@ public class LoginController {
 
         new Thread(()->{
             try{
-                ServerLoginResponse response = connection.sendLoginRequest(username, password);
+                ServerLoginResponse response = connection != null && connection.isConnected() ? connection.sendLoginRequest(username, password) : new ServerLoginResponse("ERROR", "Server is not available.");
 
                 Platform.runLater(() -> {
                     if (response.status.equals("OK")){
@@ -178,7 +179,7 @@ public class LoginController {
 
         new Thread(() -> {
             try{
-                ServerRegisterResponse response = connection.sendRegisterRequest(username, password);
+                ServerRegisterResponse response = connection != null && connection.isConnected() ? connection.sendRegisterRequest(username, password) : new ServerRegisterResponse("ERROR", "Server is not available.");
 
                 Platform.runLater(() -> {
                     if (response.status.equals("OK")){
@@ -188,10 +189,10 @@ public class LoginController {
                             Scene scene = new Scene(root);
 
                             Stage stage = (Stage) registerButton.getScene().getWindow();
-                            stage.setWidth(1020);
+                            stage.setWidth(1100);
                             stage.setHeight(800);
 
-                            stage.setMinWidth(1020);
+                            stage.setMinWidth(1100);
                             stage.setMinHeight(800);
                             stage.setTitle("DChat " + username);
 
