@@ -165,4 +165,15 @@ public class ClientConnection {
             }
         }).start();
     }
+
+    public void sendGetChatsRequest(String username) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            GetChatsRequest request = new GetChatsRequest(username);
+            String json = mapper.writeValueAsString(request);
+            send(json);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -2,6 +2,8 @@ package org.example.dchatclient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -93,11 +95,6 @@ public class ClientAppController {
 
         connection.sendMessage(currentChatUsername, message);
 
-        allMessages.add(message);
-        if (isMessageForCurrentChat(message)) {
-            filteredMessages.add(message);
-        }
-
         messageInput.clear();
     }
 
@@ -113,6 +110,8 @@ public class ClientAppController {
 
         chatListView.setItems(chatItems);
         messageListView.setItems(filteredMessages);
+
+        initChats();
 
         chatListView.setOnMouseClicked(event -> {
             Chat selectedChat = chatListView.getSelectionModel().getSelectedItem();
@@ -157,6 +156,8 @@ public class ClientAppController {
         connection.listenToServer((msg) -> {
             try{
                 ObjectMapper mapper = new ObjectMapper();
+                mapper.registerModule(new JavaTimeModule());
+                mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
                 BaseResponse base = mapper.readValue(msg, BaseResponse.class);
 
                 switch (base.getType()){
@@ -166,14 +167,44 @@ public class ClientAppController {
                         Platform.runLater(() -> addIncomingMessage(message));
                     }
 
+                    case "MESSAGES" -> {
+                        GetMessageResponse response = mapper.readValue(msg, GetMessageResponse.class);
+                        Platform.runLater(() -> {
+                            allMessages.setAll(response.messages);
+                            filteredMessages.setAll(allMessages.filtered(this::isMessageForCurrentChat));
+                            messageListView.scrollTo(filteredMessages.size() - 1);
+                        });
+                    }
+
                     case "NEW_CHAT_OK" -> {
                         NewChatResponse response = mapper.readValue(msg, NewChatResponse.class);
                         addNewChat(response.chatId, response.recipientId, response.recipient);
                     }
+
                     case "NEW_CHAT_ERR" -> {
                         Platform.runLater(() ->
                                 showAlert("Chat Error", "Chat creation failed: user not found or already in chat.")
                         );
+                    }
+
+                    case "CHATS" -> {
+                        GetChatsResponse response = mapper.readValue(msg, GetChatsResponse.class);
+                        Platform.runLater(() -> {
+                            chatItems.setAll(response.chats);
+
+                            if (!response.chats.isEmpty()) {
+                                Chat firstChat = response.chats.getFirst();
+                                chatListView.getSelectionModel().select(firstChat);
+                                currentChatUsername = firstChat.getUserName();
+
+                                filteredMessages.setAll(
+                                        allMessages.filtered(this::isMessageForCurrentChat)
+                                );
+                            } else {
+                                currentChatUsername = null;
+                                filteredMessages.clear();
+                            }
+                        });
                     }
 
                     default -> System.out.println("Unknown type: " + base.getType());
@@ -182,6 +213,7 @@ public class ClientAppController {
                 e.printStackTrace();
             }
         });
+
     }
 
     public void addIncomingMessage(Message message){
@@ -190,6 +222,9 @@ public class ClientAppController {
         if (isMessageForCurrentChat(message)){
             filteredMessages.add(message);
         }
+
+        messageListView.scrollTo(filteredMessages.size() - 1);
+
     }
 
     private boolean isMessageForCurrentChat(Message message){
@@ -219,6 +254,10 @@ public class ClientAppController {
         if (connection != null && clientUsername != null) {
             allMessages.setAll(connection.sendGetMessagesRequest(clientUsername));
         }
+
+        filteredMessages.setAll(
+                allMessages.filtered(this::isMessageForCurrentChat)
+        );
     }
 
     public String getClientUsername(){
@@ -241,12 +280,19 @@ public class ClientAppController {
             chatItems.add(chat);
             chatListView.getSelectionModel().select(chat);
             currentChatUsername = username;
-            filteredMessages.clear();
+
+            filteredMessages.setAll(
+                    allMessages.filtered(this::isMessageForCurrentChat)
+            );
         });
 
     }
 
-
+    public void initChats() {
+        if (connection != null && clientUsername != null) {
+            connection.sendGetChatsRequest(clientUsername);
+        }
+    }
 
 
 }
