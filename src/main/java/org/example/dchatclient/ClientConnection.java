@@ -154,9 +154,6 @@ public class ClientConnection {
             try{
                 String line;
                 while((line = in.readLine()) != null){
-                    //TODO delete
-                    System.out.println("Raw from server: " + line);
-                    //
                     messageHandler.accept(line);
                 }
             } catch (IOException e){
